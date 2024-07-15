@@ -1,9 +1,9 @@
-import { Router } from 'express'
+import { Router } from 'express';
+import rewardRouter from './reward';
 // import coupon from './coupon'
 
-const router = new Router()
+const router = new Router();
 
-// router.use('/', coupon)
+router.use('/reward', rewardRouter);
 
-
-export default router
+export default router;

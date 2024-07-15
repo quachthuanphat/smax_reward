@@ -1,11 +1,11 @@
-import { Router } from 'express'
+import { Router } from 'express';
 // import user from './user'
-import apiBackdoor from './backdoor'
-import apiPublic from './public'
-import { token, backdoor } from '../services/biz'
-import { service } from '../config'
+import apiBackdoor from './backdoor';
+import apiPublic from './public';
+import { token, backdoor } from '../services/biz';
+import { service } from '../config';
 
-const router = new Router()
+const router = new Router();
 
 /**
  * @apiDefine master Master access only
@@ -32,10 +32,9 @@ const router = new Router()
  */
 // router.use('/users', user)
 // router.use('/users', user)
-router.use(`/${service}`, backdoor({ required: true }), apiBackdoor)
+router.use(`/${service}`, backdoor({ required: true }), apiBackdoor);
 
+// router.use(`/bizs/:bizId/${service}`, token({ required: true }), apiPublic);
+router.use(`/bizs/:bizId/${service}`, apiPublic);
 
-router.use(`/bizs/:bizId/${service}`, token({ required: true }), apiPublic)
-
-
-export default router
+export default router;
