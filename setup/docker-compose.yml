@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  # mongo
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27018:27017
+    container_name: smaxapp_coupon
+    volumes:
+      - /data/smaxapp/db:/data/db
+  # Redis
+  redis:
+    container_name: smaxapp_redis
+    image: redis:6.2.6
+    networks:
+      - default
+    ports:
+      - 6380:6379
+    restart: always
+    volumes:
+      - /data/smaxapp/redisdb:/data
+  # backend
+  backend:
+    build: ./backend/
+    restart: always
+    volumes:
+      - ./backend/:/app
+    depends_on:
+      - mongo
+      - redis
+    ports:
+      - "9000:9000"
+    # environment:
+    #   - APP_ENV
+  # fontend
+  fontend:
+    build: ./fontend/
+    restart: always
+    volumes:
+      - ./fontend/:/app
+    depends_on:
+      - backend
+    ports:
+      - "4200:4200"
+    environment:
+      - APP_ENV

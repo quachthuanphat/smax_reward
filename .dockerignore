@@ -1,0 +1,6 @@
+.env
+node_modules
+setup
+ecosystem.config.js
+data
+mongodb

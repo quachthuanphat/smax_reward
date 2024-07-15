@@ -1,0 +1,41 @@
+version: "3.9"
+
+networks:
+ data_table-net:
+  driver: bridge
+  ipam:
+      driver: default
+
+services:
+  # mongo
+  mongo:
+    image: mongo
+    restart: always
+    container_name: data_table_mongo
+    networks:
+      - data_table-net
+    volumes:
+      - ./mongodb:/data/db
+  # Redis
+  redis:
+    image: redis:6.2.6
+    container_name: data_table_redis
+    networks:
+      - data_table-net
+    restart: always
+  # backend
+  backend:
+    build: ./
+    container_name: data_table_api
+    restart: always
+    networks:
+      - data_table-net
+    command: ['npm', 'run', 'prod']
+    depends_on:
+      - mongo
+      - redis
+    ports:
+      - "8095:5000"
+      # 8080 -> 8089
+    env_file:
+      - ./.env
