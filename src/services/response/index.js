@@ -1,10 +1,10 @@
-export const invalidDataRequest = (res) => {
+export const invalidDataRequest = (res, message) => {
     const data = {
         status: 500,
         statusText: 'FAIELD',
         subStatus: 500,
         subStatusText: '',
-        message: 'INVALID_DATA',
+        message: message || 'INVALID_DATA',
     };
     return res.status(500).json(data);
 };

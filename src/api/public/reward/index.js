@@ -8,7 +8,7 @@ const rewardRouter = new Router();
 
 rewardRouter.get('/', query(), list);
 rewardRouter.post('/', body(rewardModel), create);
-rewardRouter.delete('/:id', destroy);
 rewardRouter.put('/:id', body(rewardModel), update);
+rewardRouter.delete('/:id', destroy);
 
 export default rewardRouter;

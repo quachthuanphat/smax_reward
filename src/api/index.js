@@ -32,9 +32,8 @@ const router = new Router();
  */
 // router.use('/users', user)
 // router.use('/users', user)
-router.use(`/${service}`, backdoor({ required: true }), apiBackdoor);
 
-// router.use(`/bizs/:bizId/${service}`, token({ required: true }), apiPublic);
-router.use(`/bizs/:bizId/${service}`, apiPublic);
+router.use(`/${service}`, backdoor({ required: true }), apiBackdoor);
+router.use(`/bizs/:bizId/${service}`, token({ required: true }), apiPublic);
 
 export default router;
