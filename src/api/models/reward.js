@@ -5,6 +5,7 @@ const rewardSchema = new Schema({
     name: { type: String, required: true },
     type: { type: String, enum: ['SYNC_FROM_SMAX', 'CREATE_MANUAL'], required: true },
     biz_alias: { type: String, required: true },
+    biz_id: { type: String, required: true },
     expried_date: { type: Date, required: true },
 });
 

@@ -9,7 +9,7 @@ export const destroy = async (req, res) => {
         const { biz } = req;
         const id = req?.params?.id;
         if (!id) return invalidDataRequest(res);
-        await RewardInstant.findOneAndDelete({ _id: Types.ObjectId(id), biz_alias: biz.alias });
+        await RewardInstant.findOneAndDelete({ _id: Types.ObjectId(id), biz_alias: biz.alias, biz_id: biz.id });
         return success(res)({});
     } catch (error) {
         console.log('error :>> ', error);
@@ -20,6 +20,7 @@ export const destroy = async (req, res) => {
 export const create = async (req, res) => {
     try {
         const { bodymen, biz } = req;
+        console.log('biz :>> ', biz);
         const today = moment();
         const requestExpriedDate = moment(bodymen.body.expried_date);
 
@@ -30,6 +31,7 @@ export const create = async (req, res) => {
         const createSuccess = await RewardInstant.create({
             ...bodymen.body,
             biz_alias: biz.alias,
+            biz_id: biz.id,
             type: 'CREATE_MANUAL',
         });
         return success(res)({ data: createSuccess });
@@ -45,7 +47,7 @@ export const update = async (req, res) => {
         const { bodymen, biz } = req;
         if (!id) return invalidDataRequest(res);
         const updateSuccess = await RewardInstant.findOneAndUpdate(
-            { _id: Types.ObjectId(id), biz_alias: biz.alias },
+            { _id: Types.ObjectId(id), biz_alias: biz.alias, biz_id: biz.id },
             { ...bodymen.body },
             { new: true }
         );
@@ -58,7 +60,7 @@ export const update = async (req, res) => {
 
 export const list = async ({ querymen: { cursor }, biz }, res) => {
     try {
-        const query = { biz_alias: biz.alias };
+        const query = { biz_alias: biz.alias, biz_id: biz.id };
 
         let [rewards, totalReward] = await Promise.all([
             RewardInstant.find(query).skip(cursor.skip).limit(cursor.limit),

@@ -1,5 +1,9 @@
 import crypto from 'crypto';
 
+export const isArray = (data) => {
+    return Array.isArray(data) && data.length;
+};
+
 export const random = function (len, chars, unique = false) {
     switch (chars) {
         case 1:

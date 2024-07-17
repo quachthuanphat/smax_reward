@@ -1,4 +1,5 @@
 import { $get } from '../axios';
+import { invalidDataRequest } from '../response';
 import { service, env } from '../../config';
 import { getCache, setCache } from '../cache';
 
@@ -17,7 +18,13 @@ export const getBiz = async ({ token, bizAlias }) => {
                     Authorization: token.toString().trim(),
                 },
             });
-            await setCache({ model: 'biz', expire: 100, data: biz, alias: bizAlias, queryParams: { authorization: dataToken.id } });
+            await setCache({
+                model: 'biz',
+                expire: 100,
+                data: biz,
+                alias: bizAlias,
+                queryParams: { authorization: dataToken.id },
+            });
         }
         biz = biz.data;
     } catch (error) {
@@ -26,15 +33,26 @@ export const getBiz = async ({ token, bizAlias }) => {
     return biz;
 };
 
+export const getBizAlias = (req, res, next) => {
+    req.bizAlias = req.params.bizAlias;
+    if (!req.bizAlias) return invalidDataRequest(res, 'Missing bizLias');
+    return next();
+};
+
 export const bizToken =
     ({ required, roles = [] } = {}) =>
     (req, res, next) => {
         return new Promise(async (resolve, reject) => {
-            if (!req.headers.authorization) return reject(new Error(JSON.stringify({ status: 401, message: 'Unauthorized' })));
+            if (!req.headers.authorization)
+                return reject(new Error(JSON.stringify({ status: 401, message: 'Unauthorized' })));
             try {
                 const token = req.headers.authorization;
 
-                let biz = await getCache({ model: 'biz-public', alias: req.params.bizAlias, queryParams: { authorization: token } });
+                let biz = await getCache({
+                    model: 'biz-public',
+                    alias: req.params.bizAlias,
+                    queryParams: { authorization: token },
+                });
                 if (biz) {
                     biz = JSON.parse(biz);
                 } else {
@@ -53,7 +71,8 @@ export const bizToken =
                     });
                 }
 
-                if (!biz?.data || biz?.status !== 200) return reject(new Error(JSON.stringify({ status: 401, message: 'Unauthorized' })));
+                if (!biz?.data || biz?.status !== 200)
+                    return reject(new Error(JSON.stringify({ status: 401, message: 'Unauthorized' })));
                 req.biz = biz.data;
                 next();
             } catch (error) {
@@ -74,7 +93,8 @@ export const token =
     ({ required, roles = [] } = {}) =>
     (req, res, next) => {
         return new Promise(async (resolve, reject) => {
-            if (!req.headers.authorization) return reject(new Error(JSON.stringify({ status: 401, message: 'Unauthorized' })));
+            if (!req.headers.authorization)
+                return reject(new Error(JSON.stringify({ status: 401, message: 'Unauthorized' })));
             try {
                 const token = req.headers.authorization;
 
@@ -84,7 +104,11 @@ export const token =
                 const bufToken = token.split('.')[1];
                 const dataToken = JSON.parse(Buffer.from(bufToken, 'base64').toString());
 
-                let biz = await getCache({ model: 'biz', alias: req.params.bizId, queryParams: { authorization: dataToken.id } });
+                let biz = await getCache({
+                    model: 'biz',
+                    alias: req.params.bizId,
+                    queryParams: { authorization: dataToken.id },
+                });
                 if (biz) {
                     biz = JSON.parse(biz);
                 } else {
@@ -96,10 +120,17 @@ export const token =
                             'ref-token': refToken,
                         },
                     });
-                    await setCache({ model: 'biz', expire: 100, data: biz, alias: req.params.bizId, queryParams: { authorization: dataToken.id } });
+                    await setCache({
+                        model: 'biz',
+                        expire: 100,
+                        data: biz,
+                        alias: req.params.bizId,
+                        queryParams: { authorization: dataToken.id },
+                    });
                 }
                 // console.log('biz', biz);
-                if (!biz?.data || biz?.status !== 200) return reject(new Error(JSON.stringify({ status: 401, message: 'Unauthorized' })));
+                if (!biz?.data || biz?.status !== 200)
+                    return reject(new Error(JSON.stringify({ status: 401, message: 'Unauthorized' })));
                 req.biz = biz.data;
                 req.viewer = biz.viewer;
                 next();
@@ -122,7 +153,8 @@ export const admin =
     ({ required, roles = ['DEV', 'MOD', 'ADMIN'] } = {}) =>
     (req, res, next) => {
         return new Promise(async (resolve, reject) => {
-            if (!req.headers.authorization) return reject(new Error(JSON.stringify({ status: 401, message: 'Unauthorized' })));
+            if (!req.headers.authorization)
+                return reject(new Error(JSON.stringify({ status: 401, message: 'Unauthorized' })));
             try {
                 const token = req.headers.authorization;
                 const bufToken = token.split('.')[1];
@@ -137,7 +169,13 @@ export const admin =
                             authorization: token,
                         },
                     });
-                    await setCache({ model: 'user', expire: 100, data: me, alias: 'me', queryParams: { authorization: dataToken.id } });
+                    await setCache({
+                        model: 'user',
+                        expire: 100,
+                        data: me,
+                        alias: 'me',
+                        queryParams: { authorization: dataToken.id },
+                    });
                 }
                 if (!me?.data || me?.status !== 200 || !roles.includes(me.data.role))
                     return reject(new Error(JSON.stringify({ status: 401, message: 'Unauthorized' })));
@@ -167,12 +205,17 @@ export const backdoor =
     (req, res, next) => {
         console.log('backdoor');
         return new Promise(async (resolve, reject) => {
-            if (!req.headers.authorization) return reject(new Error(JSON.stringify({ status: 401, message: 'Unauthorized' })));
+            if (!req.headers.authorization)
+                return reject(new Error(JSON.stringify({ status: 401, message: 'Unauthorized' })));
 
             try {
                 // Chạy thật mới check
                 if (env === 'production') {
-                    let verify = await getCache({ model: 'backdoors', alias: 'verify', queryParams: { authorization: req.headers.authorization } });
+                    let verify = await getCache({
+                        model: 'backdoors',
+                        alias: 'verify',
+                        queryParams: { authorization: req.headers.authorization },
+                    });
                     if (verify) {
                         verify = JSON.parse(verify);
                     } else {

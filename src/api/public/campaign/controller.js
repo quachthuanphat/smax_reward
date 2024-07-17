@@ -15,10 +15,10 @@ const isHasDuplicateLevel = (rewards) => {
 
 export const list = async ({ querymen: { cursor }, biz }, res) => {
     try {
-        const query = { biz_alias: biz.alias };
+        const query = { biz_alias: biz.alias, biz_id: biz.id };
 
         let [campaigns, totalCampaign] = await Promise.all([
-            CanpaignInstant.find(query).populate('rewards.infomation').skip(cursor.skip).limit(cursor.limit),
+            CanpaignInstant.find(query).populate('rewards.information').skip(cursor.skip).limit(cursor.limit),
             CanpaignInstant.count(query),
         ]);
         const total_page = Math.ceil(totalCampaign / cursor.limit);
@@ -61,11 +61,14 @@ export const create = async (req, res, next) => {
         const createCampaignPayload = {
             ...bodymen.body,
             biz_alias: biz.alias,
+            biz_id: biz.id,
             rewards: rewards.map((reward) => ({
                 level: reward.level,
-                infomation: reward.id,
+                information: reward.id,
             })),
         };
+
+        console.log('createCampaignPayload :>> ', createCampaignPayload);
 
         const createCampaignResult = await CanpaignInstant.create(createCampaignPayload);
 
@@ -109,12 +112,15 @@ export const update = async (req, res, next) => {
             return invalidDataRequest(res, 'Thời gian kết thúc cần lớn hơn thời gian bắt đầu !');
         }
 
+        delete bodymen.body.is_rotating;
+
         const createCampaignPayload = {
             ...bodymen.body,
             biz_alias: biz.alias,
+            biz_id: biz.id,
             rewards: rewards.map((reward) => ({
                 level: reward.level,
-                infomation: reward.id,
+                information: reward.id,
             })),
         };
 
@@ -136,7 +142,7 @@ export const destroy = async (req, res) => {
         const { biz } = req;
         const id = req?.params?.id;
         if (!id) return invalidDataRequest(res);
-        await CanpaignInstant.findOneAndDelete({ _id: Types.ObjectId(id), biz_alias: biz.alias });
+        await CanpaignInstant.findOneAndDelete({ _id: Types.ObjectId(id), biz_alias: biz.alias, biz_id: biz.id });
         return success(res)({});
     } catch (error) {
         console.log('error :>> ', error);

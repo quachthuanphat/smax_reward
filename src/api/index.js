@@ -2,7 +2,8 @@ import { Router } from 'express';
 // import user from './user'
 import apiBackdoor from './backdoor';
 import apiPublic from './public';
-import { token, backdoor } from '../services/biz';
+import apiClient from './client';
+import { token, backdoor, getBizAlias } from '../services/biz';
 import { service } from '../config';
 
 const router = new Router();
@@ -34,6 +35,9 @@ const router = new Router();
 // router.use('/users', user)
 
 router.use(`/${service}`, backdoor({ required: true }), apiBackdoor);
-router.use(`/bizs/:bizId/${service}`, token({ required: true }), apiPublic);
+
+router.use(`/bizs/:bizAlias/${service}/client`, getBizAlias, apiClient);
+
+router.use(`/bizs/:bizId/${service}/`, token({ required: true }), apiPublic);
 
 export default router;
